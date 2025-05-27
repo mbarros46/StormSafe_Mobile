@@ -8,6 +8,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "1.21.0",
+    "@types/react": "~18.2.45",
     "axios": "^1.6.7",
     "expo": "~50.0.16",
     "expo-location": "~16.5.5",
@@ -16,9 +18,7 @@
     "react-dom": "18.2.0",
     "react-native": "0.73.6",
     "react-native-maps": "1.10.0",
-    "react-native-web": "~0.19.6",
-    "@types/react": "~18.2.45",
-    "@react-native-async-storage/async-storage": "1.21.0"
+    "react-native-web": "~0.19.6"
   },
   "devDependencies": {
     "typescript": "^5.2.2"

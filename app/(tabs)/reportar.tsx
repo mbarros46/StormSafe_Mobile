@@ -24,12 +24,13 @@ export default function Reportar() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Título do Relato</Text>
+      <Text style={styles.title}>Reportar Alagamento</Text>
+      <Text style={styles.label}>Título</Text>
       <TextInput
         style={styles.input}
         value={titulo}
         onChangeText={setTitulo}
-        placeholder="Ex: Enchente em rua X"
+        placeholder="Ex: Alagamento na rua X"
         placeholderTextColor="#aaa"
       />
 
@@ -44,13 +45,14 @@ export default function Reportar() {
         numberOfLines={4}
       />
 
-      <Button title="Enviar Relato" onPress={enviarRelato} color="#00BFFF" />
+      <Button title="Enviar" onPress={enviarRelato} color="#00BFFF" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#111' },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#00BFFF', marginBottom: 24 },
   label: { color: '#fff', marginBottom: 8, fontSize: 16 },
   input: {
     backgroundColor: '#1e1e1e',
