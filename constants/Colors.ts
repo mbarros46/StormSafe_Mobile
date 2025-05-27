@@ -1,0 +1,1 @@
+export default { primary: '#00BFFF', danger: '#FF4500', dark: '#1a1a1a', light: '#fff' };

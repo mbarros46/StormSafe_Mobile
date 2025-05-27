@@ -1,0 +1,1 @@
+export type Alerta = { id: number; titulo: string; status: 'PERIGO' | 'ATENÇÃO' | 'OK'; data: string; };
