@@ -9,7 +9,7 @@ export default function Index() {
   useEffect(() => {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        router.replace('/home') // ou outra tela principal protegida
+        router.replace('/(tabs)/alertas') // ou qualquer rota protegida válida
       } else {
         router.replace('/login')
       }
