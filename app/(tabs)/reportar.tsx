@@ -63,7 +63,7 @@ export default function Reportar() {
   return (
   <ScrollView
     style={styles.container}
-    contentContainerStyle={{ paddingBottom: 32 }}
+    contentContainerStyle={{ paddingBottom: 64 }}
     showsVerticalScrollIndicator={false}
   >
     <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
@@ -234,6 +234,10 @@ const styles = StyleSheet.create({
   },
   tipsCard: {
     backgroundColor: Colors.surfaceLight,
+    borderRadius: 12,
+    padding: Spacing.md,
+    marginBottom: Spacing.xl,
+    overflow: "hidden",
   },
   tipsIcon: {
     fontSize: 24,
