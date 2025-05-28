@@ -1,13 +1,20 @@
-import { Tabs } from 'expo-router';
+import { Stack } from "expo-router"
+import { StatusBar } from "expo-status-bar"
+import { Colors } from "../constants/Colors"
 
-export default function TabsLayout() {
+export default function RootLayout() {
   return (
-    <Tabs>
-      <Tabs.Screen name="index" options={{ title: 'Início' }} />
-      <Tabs.Screen name="alertas" options={{ title: 'Alertas' }} />
-      <Tabs.Screen name="mapa" options={{ title: 'Mapa' }} />
-      <Tabs.Screen name="reportar" options={{ title: 'Reportar' }} />
-      <Tabs.Screen name="config" options={{ title: 'Configurações' }} />
-    </Tabs>
-  );
+    <>
+      <StatusBar style="light" backgroundColor={Colors.background} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: Colors.background },
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+    </>
+  )
 }
