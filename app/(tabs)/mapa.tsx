@@ -26,7 +26,11 @@ export default function Mapa() {
   ]
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 64}}
+      showsVerticalScrollIndicator={false}
+      >
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* Região Atual */}
         <Card style={styles.regionCard}>
@@ -215,6 +219,10 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     backgroundColor: Colors.surfaceLight,
+    borderRadius: 12,
+    padding: Spacing.md,
+    marginBottom: Spacing.xl,
+    overflow: "hidden",
   },
   infoIcon: {
     fontSize: 24,
