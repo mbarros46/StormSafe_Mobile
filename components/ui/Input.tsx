@@ -1,9 +1,9 @@
 "use client"
 
+import React from "react"
 import { useState } from "react"
 import { View, TextInput, Text, StyleSheet, type TextInputProps } from "react-native"
-import { Colors } from "../../constants/Colors";
-import { Typography } from "../../constants/Typography";
+import { Colors, Typography, BorderRadius } from "../../constants"
 import { Spacing } from "../../constants/Spacing";
 
 interface InputProps extends TextInputProps {

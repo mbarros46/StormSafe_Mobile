@@ -1,89 +1,209 @@
-import type React from "react"
-import { TouchableOpacity, Text, StyleSheet, type ViewStyle, type TextStyle } from "react-native"
-import { Colors } from "../../constants/Colors"
-import { Spacing } from "../../constants/Spacing"
-
-type ButtonVariant = "primary" | "secondary" | "outline"
-type ButtonSize = "sm" | "md" | "lg"
+import React from "react"
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, type ViewStyle, type TextStyle } from "react-native"
+import { LinearGradient } from "expo-linear-gradient"
+import { Colors, Typography, BorderRadius, Shadows } from "../../constants"
 
 interface ButtonProps {
   title: string
   onPress: () => void
-  style?: ViewStyle | ViewStyle[]
-  textStyle?: TextStyle | TextStyle[]
-  variant?: ButtonVariant
-  size?: ButtonSize
+  variant?: "primary" | "secondary" | "danger" | "warning" | "ghost" | "outline"
+  size?: "sm" | "md" | "lg" | "xl"
+  loading?: boolean
   disabled?: boolean
+  gradient?: boolean
+  icon?: string
+  style?: ViewStyle
+  textStyle?: TextStyle
 }
 
 export default function Button({
   title,
   onPress,
-  style,
-  textStyle,
   variant = "primary",
   size = "md",
+  loading = false,
   disabled = false,
+  gradient = false,
+  icon,
+  style,
+  textStyle,
 }: ButtonProps) {
+  const buttonStyle = [styles.base, styles[variant], styles[size], disabled && styles.disabled, style]
+
+  const textStyles = [
+    styles.text,
+    styles[`${variant}Text`],
+    styles[`${size}Text`],
+    disabled && styles.disabledText,
+    textStyle,
+  ]
+
+  const ButtonContent = () => (
+    <>
+      {loading ? (
+        <ActivityIndicator
+          color={variant === "primary" || variant === "danger" ? Colors.white : Colors.primary}
+          size="small"
+        />
+      ) : (
+        <>
+          {icon && <Text style={[styles.icon, styles[`${size}Icon`]]}>{icon}</Text>}
+          <Text style={textStyles}>{title}</Text>
+        </>
+      )}
+    </>
+  )
+
+  if (gradient && (variant === "primary" || variant === "danger" || variant === "warning")) {
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        disabled={disabled || loading}
+        activeOpacity={0.8}
+        style={[styles.base, styles[size], disabled && styles.disabled, style]}
+      >
+        <LinearGradient
+          colors={Colors.gradients[variant === "primary" ? "primary" : variant]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[styles.gradient, styles[size]]}
+        >
+          <ButtonContent />
+        </LinearGradient>
+      </TouchableOpacity>
+    )
+  }
+
   return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        styles[variant],
-        styles[size],
-        disabled && styles.disabled,
-        style,
-      ]}
-      onPress={onPress}
-      disabled={disabled}
-    >
-      <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>{title}</Text>
+    <TouchableOpacity style={buttonStyle} onPress={onPress} disabled={disabled || loading} activeOpacity={0.8}>
+      <ButtonContent />
     </TouchableOpacity>
   )
 }
 
 const styles = StyleSheet.create({
-  button: {
-    borderRadius: 8,
+  base: {
+    borderRadius: BorderRadius.lg,
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "row",
+    ...Shadows.md,
   },
+
+  gradient: {
+    borderRadius: BorderRadius.lg,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    width: "100%",
+  },
+
+  // Variants
   primary: {
     backgroundColor: Colors.primary,
   },
   secondary: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  danger: {
+    backgroundColor: Colors.danger,
+  },
+  warning: {
+    backgroundColor: Colors.warning,
+  },
+  ghost: {
+    backgroundColor: "transparent",
   },
   outline: {
     backgroundColor: "transparent",
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: Colors.primary,
   },
+
+  // Sizes
   sm: {
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minHeight: 36,
   },
   md: {
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    minHeight: 44,
   },
   lg: {
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    minHeight: 52,
   },
-  disabled: {
-    opacity: 0.5,
+  xl: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    minHeight: 56,
   },
+
+  // Text styles
   text: {
-    fontWeight: "600",
+    fontWeight: Typography.weights.semibold,
+    textAlign: "center",
   },
   primaryText: {
     color: Colors.white,
   },
   secondaryText: {
+    color: Colors.text,
+  },
+  dangerText: {
     color: Colors.white,
+  },
+  warningText: {
+    color: Colors.white,
+  },
+  ghostText: {
+    color: Colors.primary,
   },
   outlineText: {
     color: Colors.primary,
+  },
+
+  // Size text
+  smText: {
+    fontSize: Typography.sizes.sm,
+  },
+  mdText: {
+    fontSize: Typography.sizes.base,
+  },
+  lgText: {
+    fontSize: Typography.sizes.lg,
+  },
+  xlText: {
+    fontSize: Typography.sizes.xl,
+  },
+
+  // Icons
+  icon: {
+    marginRight: 8,
+  },
+  smIcon: {
+    fontSize: 16,
+  },
+  mdIcon: {
+    fontSize: 18,
+  },
+  lgIcon: {
+    fontSize: 20,
+  },
+  xlIcon: {
+    fontSize: 22,
+  },
+
+  // States
+  disabled: {
+    opacity: 0.5,
+  },
+  disabledText: {
+    opacity: 0.7,
   },
 })

@@ -1,6 +1,8 @@
+import React from "react"
 import { Tabs } from "expo-router"
-import { Colors } from "../../constants/Colors";
-
+import { Colors, Typography } from "../../constants"
+import { BlurView } from "expo-blur"
+import { Platform } from "react-native"
 
 export default function TabLayout() {
   return (
@@ -9,16 +11,20 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarStyle: {
-          backgroundColor: Colors.surface,
+          backgroundColor: Platform.OS === "ios" ? "transparent" : Colors.surface,
           borderTopColor: Colors.border,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: 85,
+          paddingBottom: Platform.OS === "ios" ? 25 : 10,
+          paddingTop: 10,
+          position: "absolute",
         },
+        tabBarBackground:
+          Platform.OS === "ios" ? () => <BlurView intensity={100} style={{ flex: 1 }} tint="dark" /> : undefined,
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "500",
+          fontSize: Typography.sizes.xs,
+          fontWeight: Typography.weights.medium,
+          marginTop: 4,
         },
         headerStyle: {
           backgroundColor: Colors.background,
@@ -27,8 +33,8 @@ export default function TabLayout() {
         },
         headerTintColor: Colors.text,
         headerTitleStyle: {
-          fontWeight: "600",
-          fontSize: 18,
+          fontWeight: Typography.weights.semibold,
+          fontSize: Typography.sizes.lg,
         },
       }}
     >
@@ -36,7 +42,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Início",
-          tabBarIcon: ({ color }) => <TabIcon name="🏠" color={color} />,
+          tabBarIcon: ({ color, size }) => <TabIcon name="🏠" color={color} size={size} />,
           headerTitle: "StormSafe",
         }}
       />
@@ -44,7 +50,7 @@ export default function TabLayout() {
         name="alertas"
         options={{
           title: "Alertas",
-          tabBarIcon: ({ color }) => <TabIcon name="🔔" color={color} />,
+          tabBarIcon: ({ color, size }) => <TabIcon name="🔔" color={color} size={size} />,
           headerTitle: "Alertas Ativos",
         }}
       />
@@ -52,7 +58,7 @@ export default function TabLayout() {
         name="mapa"
         options={{
           title: "Mapa",
-          tabBarIcon: ({ color }) => <TabIcon name="📍" color={color} />,
+          tabBarIcon: ({ color, size }) => <TabIcon name="🗺️" color={color} size={size} />,
           headerTitle: "Mapa de Riscos",
         }}
       />
@@ -60,30 +66,32 @@ export default function TabLayout() {
         name="reportar"
         options={{
           title: "Reportar",
-          tabBarIcon: ({ color }) => <TabIcon name="➕" color={color} />,
-          headerTitle: "Reportar Ocorrência",
+          tabBarIcon: ({ color, size }) => <TabIcon name="📢" color={color} size={size} />,
+          headerTitle: "Reportar Incidente",
         }}
       />
       <Tabs.Screen
         name="config"
         options={{
           title: "Config",
-          tabBarIcon: ({ color }) => <TabIcon name="⚙️" color={color} />,
+          tabBarIcon: ({ color, size }) => <TabIcon name="⚙️" color={color} size={size} />,
           headerTitle: "Configurações",
-        }}
-      />
-      <Tabs.Screen
-        name="sobre"
-        options={{
-          title: "Sobre",
-          tabBarIcon: ({ color }) => <TabIcon name="ℹ️" color={color} />,
-          headerTitle: "Sobre o StormSafe",
         }}
       />
     </Tabs>
   )
 }
 
-function TabIcon({ name, color }: { name: string; color: string }) {
-  return <span style={{ fontSize: 20, filter: `grayscale(${color === Colors.textMuted ? 1 : 0})` }}>{name}</span>
+function TabIcon({ name, color, size }: { name: string; color: string; size: number }) {
+  return (
+    <span
+      style={{
+        fontSize: size + 2,
+        filter: color === Colors.textMuted ? "grayscale(0.7)" : "none",
+        opacity: color === Colors.textMuted ? 0.7 : 1,
+      }}
+    >
+      {name}
+    </span>
+  )
 }

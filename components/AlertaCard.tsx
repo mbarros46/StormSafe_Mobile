@@ -1,22 +1,23 @@
+import React from "react"
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from "react-native"
 import type { Alerta } from "../app/types"
-import { Colors } from "../constants/Colors";
-import { Typography } from "../constants/Typography";
-import { Spacing } from "../constants/Spacing";
 import Card from "./ui/Card"
+import StatusBadge from "./ui/StatusBadge"
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from "../constants"
 
 interface AlertaCardProps {
   alerta: Alerta
   onDelete?: (id: number) => void
+  onPress?: () => void
 }
 
-export default function AlertaCard({ alerta, onDelete }: AlertaCardProps) {
+export default function AlertaCard({ alerta, onDelete, onPress }: AlertaCardProps) {
   const fadeAnim = new Animated.Value(1)
 
   const statusConfig = {
-    PERIGO: { color: Colors.perigo, label: "PERIGO", icon: "🚨" },
-    ATENÇÃO: { color: Colors.atencao, label: "ATENÇÃO", icon: "⚠️" },
-    OK: { color: Colors.ok, label: "SEGURO", icon: "✅" },
+    PERIGO: { color: Colors.danger, priority: "Alta" },
+    ATENÇÃO: { color: Colors.warning, priority: "Média" },
+    OK: { color: Colors.success, priority: "Baixa" },
   }
 
   const config = statusConfig[alerta.status]
@@ -33,10 +34,15 @@ export default function AlertaCard({ alerta, onDelete }: AlertaCardProps) {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
+    const now = new Date()
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+
+    if (diffInHours < 1) return "Agora mesmo"
+    if (diffInHours < 24) return `${diffInHours}h atrás`
+
     return date.toLocaleString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
-      year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     })
@@ -44,24 +50,36 @@ export default function AlertaCard({ alerta, onDelete }: AlertaCardProps) {
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
-      <Card style={[styles.card, { borderLeftColor: config.color }]}>
-        <View style={styles.header}>
-          <View style={styles.statusContainer}>
-            <Text style={styles.icon}>{config.icon}</Text>
-            <View style={[styles.statusBadge, { backgroundColor: config.color }]}>
-              <Text style={styles.statusText}>{config.label}</Text>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        <Card style={[styles.card, { borderLeftColor: config.color }]} variant="elevated">
+          <View style={styles.header}>
+            <StatusBadge status={alerta.status} size="sm" />
+            <View style={styles.priority}>
+              <Text style={styles.priorityLabel}>Prioridade:</Text>
+              <Text style={[styles.priorityValue, { color: config.color }]}>{config.priority}</Text>
             </View>
           </View>
-          {onDelete && (
-            <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-              <Text style={styles.deleteIcon}>🗑️</Text>
-            </TouchableOpacity>
-          )}
-        </View>
 
-        <Text style={styles.title}>{alerta.titulo}</Text>
-        <Text style={styles.date}>📅 {formatDate(alerta.data)}</Text>
-      </Card>
+          <Text style={styles.title}>{alerta.titulo}</Text>
+
+          <View style={styles.footer}>
+            <View style={styles.timeContainer}>
+              <Text style={styles.timeIcon}>🕐</Text>
+              <Text style={styles.timeText}>{formatDate(alerta.data)}</Text>
+            </View>
+
+            {onDelete && (
+              <TouchableOpacity
+                onPress={handleDelete}
+                style={styles.deleteButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text style={styles.deleteIcon}>🗑️</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </Card>
+      </TouchableOpacity>
     </Animated.View>
   )
 }
@@ -71,47 +89,67 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     marginBottom: Spacing.md,
   },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: Spacing.sm,
-  },
-  statusContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    flex: 1,
+    marginBottom: Spacing.md,
   },
-  icon: {
-    fontSize: 20,
-    marginRight: Spacing.sm,
+
+  priority: {
+    alignItems: "flex-end",
   },
-  statusBadge: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: Colors.white,
+
+  priorityLabel: {
     fontSize: Typography.sizes.xs,
-    fontWeight: Typography.weights.bold,
+    color: Colors.textMuted,
+    marginBottom: 2,
   },
-  deleteButton: {
-    padding: Spacing.xs,
-    borderRadius: 8,
-    backgroundColor: Colors.danger,
+
+  priorityValue: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: Typography.weights.semibold,
   },
-  deleteIcon: {
-    fontSize: 16,
-  },
+
   title: {
     fontSize: Typography.sizes.lg,
     fontWeight: Typography.weights.semibold,
     color: Colors.text,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.md,
+    lineHeight: Typography.lineHeights.normal * Typography.sizes.lg,
   },
-  date: {
+
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  timeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+
+  timeIcon: {
+    fontSize: 14,
+    marginRight: Spacing.xs,
+  },
+
+  timeText: {
     fontSize: Typography.sizes.sm,
     color: Colors.textMuted,
+  },
+
+  deleteButton: {
+    backgroundColor: Colors.danger,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.xs,
+    ...Shadows.sm,
+  },
+
+  deleteIcon: {
+    fontSize: 16,
   },
 })
