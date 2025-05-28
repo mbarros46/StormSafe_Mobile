@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.21.0",
-    "@types/react": "~18.2.45",
     "axios": "^1.6.7",
     "expo": "~50.0.16",
     "expo-location": "~16.5.5",
@@ -21,6 +20,8 @@
     "react-native-web": "~0.19.6"
   },
   "devDependencies": {
+    "@types/react": "^19.1.6",
+    "@types/react-native": "^0.72.8",
     "typescript": "^5.2.2"
   },
   "private": true

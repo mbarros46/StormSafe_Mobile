@@ -5,7 +5,7 @@ import { Spacing } from "../../constants/Spacing"
 
 interface CardProps {
   children: React.ReactNode
-  style?: ViewStyle
+  style?: ViewStyle | ViewStyle[]
   padding?: keyof typeof Spacing
 }
 

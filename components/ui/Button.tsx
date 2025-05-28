@@ -1,28 +1,89 @@
 import type React from "react"
-import { View, StyleSheet, type ViewStyle } from "react-native"
+import { TouchableOpacity, Text, StyleSheet, type ViewStyle, type TextStyle } from "react-native"
 import { Colors } from "../../constants/Colors"
 import { Spacing } from "../../constants/Spacing"
 
-interface CardProps {
-  children: React.ReactNode
-  style?: ViewStyle
-  padding?: keyof typeof Spacing
+type ButtonVariant = "primary" | "secondary" | "outline"
+type ButtonSize = "sm" | "md" | "lg"
+
+interface ButtonProps {
+  title: string
+  onPress: () => void
+  style?: ViewStyle | ViewStyle[]
+  textStyle?: TextStyle | TextStyle[]
+  variant?: ButtonVariant
+  size?: ButtonSize
+  disabled?: boolean
 }
 
-export default function Card({ children, style, padding = "md" }: CardProps) {
-  return <View style={[styles.card, { padding: Spacing[padding] }, style]}>{children}</View>
+export default function Button({
+  title,
+  onPress,
+  style,
+  textStyle,
+  variant = "primary",
+  size = "md",
+  disabled = false,
+}: ButtonProps) {
+  return (
+    <TouchableOpacity
+      style={[
+        styles.button,
+        styles[variant],
+        styles[size],
+        disabled && styles.disabled,
+        style,
+      ]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>{title}</Text>
+    </TouchableOpacity>
+  )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+  button: {
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primary: {
+    backgroundColor: Colors.primary,
+  },
+  secondary: {
+    backgroundColor: Colors.secondary,
+  },
+  outline: {
+    backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.primary,
+  },
+  sm: {
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
+  },
+  md: {
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+  },
+  lg: {
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  text: {
+    fontWeight: "600",
+  },
+  primaryText: {
+    color: Colors.white,
+  },
+  secondaryText: {
+    color: Colors.white,
+  },
+  outlineText: {
+    color: Colors.primary,
   },
 })
