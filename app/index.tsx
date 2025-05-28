@@ -9,7 +9,7 @@ export default function Index() {
   useEffect(() => {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        router.replace('/(tabs)/alertas') // ou qualquer rota protegida válida
+        router.replace('/(tabs)/alertas') // rota principal protegida
       } else {
         router.replace('/login')
       }
