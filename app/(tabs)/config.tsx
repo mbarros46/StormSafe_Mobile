@@ -59,13 +59,19 @@ export default function Config() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 32 }}
+      showsVerticalScrollIndicator={false}
+    >
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* Header */}
         <Card style={styles.headerCard}>
-          <Text style={styles.headerIcon}>⚙️</Text>
-          <Text style={styles.headerTitle}>Configurações</Text>
-          <Text style={styles.headerSubtitle}>Personalize sua experiência no StormSafe</Text>
+          <Text style={styles.headerIcon}>📢</Text>
+          <Text style={styles.headerTitle}>Reportar Ocorrência</Text>
+          <Text style={styles.headerSubtitle}>
+            Ajude a comunidade reportando alagamentos e situações de risco
+          </Text>
         </Card>
 
         {/* Notificações */}

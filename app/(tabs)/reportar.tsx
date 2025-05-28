@@ -61,14 +61,20 @@ export default function Reportar() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        {/* Header */}
-        <Card style={styles.headerCard}>
-          <Text style={styles.headerIcon}>📢</Text>
-          <Text style={styles.headerTitle}>Reportar Ocorrência</Text>
-          <Text style={styles.headerSubtitle}>Ajude a comunidade reportando alagamentos e situações de risco</Text>
-        </Card>
+  <ScrollView
+    style={styles.container}
+    contentContainerStyle={{ paddingBottom: 32 }}
+    showsVerticalScrollIndicator={false}
+  >
+    <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+      {/* Header */}
+      <Card style={styles.headerCard}>
+        <Text style={styles.headerIcon}>📢</Text>
+        <Text style={styles.headerTitle}>Reportar Ocorrência</Text>
+        <Text style={styles.headerSubtitle}>
+          Ajude a comunidade reportando alagamentos e situações de risco
+        </Text>
+      </Card>
 
         {/* Formulário */}
         <Card style={styles.formCard}>
@@ -138,7 +144,7 @@ export default function Reportar() {
               ],
             },
           ]}
-          pointerEvents={successAnim._value > 0 ? "auto" : "none"}
+          pointerEvents="box-none"
         >
           <Card style={styles.successCard}>
             <Text style={styles.successIcon}>✅</Text>
