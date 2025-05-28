@@ -61,7 +61,7 @@ export default function Config() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 32 }}
+      contentContainerStyle={{ paddingBottom: 64 }}
       showsVerticalScrollIndicator={false}
     >
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
@@ -281,6 +281,13 @@ const styles = StyleSheet.create({
   statusCard: {
     borderColor: Colors.success,
     borderWidth: 1,
+    borderRadius: 12,
+    marginBottom: Spacing.xl,
+    paddingVertical: Spacing.lg,
+    padding: Spacing.md,
+    overflow: "hidden",
+    backgroundColor: Colors.surface,
+
   },
   statusHeader: {
     flexDirection: "row",
@@ -297,7 +304,9 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   statusItems: {
-    gap: Spacing.sm,
+    gap: Spacing.md,
+    marginTop: Spacing.md,
+    paddingBottom: Spacing.md,
   },
   statusItem: {
     flexDirection: "row",
