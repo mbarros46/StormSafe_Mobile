@@ -1,5 +1,12 @@
 import React from "react"
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, type ViewStyle, type TextStyle } from "react-native"
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  type ViewStyle,
+  type TextStyle,
+} from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { Colors, Typography, BorderRadius, Shadows } from "../../constants"
 
@@ -54,6 +61,10 @@ export default function Button({
     </>
   )
 
+  const gradientColors: string[] =
+  Colors.gradients?.[variant === "primary" || variant === "danger" || variant === "warning" ? variant : "primary"] ??
+  [Colors.primary, Colors.primaryLight]
+
   if (gradient && (variant === "primary" || variant === "danger" || variant === "warning")) {
     return (
       <TouchableOpacity
@@ -63,7 +74,7 @@ export default function Button({
         style={[styles.base, styles[size], disabled && styles.disabled, style]}
       >
         <LinearGradient
-          colors={Colors.gradients[variant === "primary" ? "primary" : variant]}
+          colors={gradientColors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.gradient, styles[size]]}

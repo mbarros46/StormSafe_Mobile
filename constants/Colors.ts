@@ -32,6 +32,13 @@ export const Colors = {
   // Transparências
   overlay: "rgba(0, 0, 0, 0.5)",
   cardShadow: "rgba(0, 0, 0, 0.1)",
+
+  // Gradientes para botões
+  gradients: {
+    primary: ["#1E3A8A", "#3B82F6"],
+    danger: ["#EF4444", "#DC2626"],
+    warning: ["#F59E0B", "#FBBF24"],
+  },
 }
 
 export default Colors
