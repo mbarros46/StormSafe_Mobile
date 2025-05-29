@@ -8,9 +8,14 @@ export default function LoginScreen() {
   const [senha, setSenha] = useState('')
   const router = useRouter()
 
+  const baseUrl =
+    typeof window !== 'undefined' && window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'http://192.168.15.128:8080'
+
   async function handleLogin() {
     try {
-      const response = await fetch('http://192.168.15.128:8080/auth/login', {
+      const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
