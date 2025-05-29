@@ -11,17 +11,21 @@ export default function LoginScreen() {
   async function handleLogin() {
     try {
       const response = await fetch('http://192.168.15.128:8080/auth/login', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ email, senha })
       })
 
-      if (!response.ok) throw new Error('Falha no login')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Falha no login')
+      }
 
       const data = await response.json()
       await AsyncStorage.setItem('token', data.token)
-      router.replace('/home')
+      router.replace('/mapa')
     } catch (error: any) {
       Alert.alert('Erro ao entrar', error.message || 'Erro desconhecido')
     }
@@ -30,19 +34,18 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        style={styles.input}
         autoCapitalize="none"
-        keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
         placeholder="Senha"
         value={senha}
-        secureTextEntry
         onChangeText={setSenha}
+        secureTextEntry
+        style={styles.input}
       />
       <Button title="ENTRAR" onPress={handleLogin} />
     </View>
@@ -52,15 +55,17 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0B1120',
     justifyContent: 'center',
     padding: 20
   },
   input: {
-    height: 50,
-    borderColor: '#ccc',
+    backgroundColor: '#1E293B',
+    color: 'white',
     borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 10,
-    borderRadius: 8
+    borderColor: '#3B82F6',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10
   }
 })
