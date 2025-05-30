@@ -1,13 +1,10 @@
 "use client"
-
-import React from "react"
 import { Stack } from "expo-router"
 import { StatusBar } from "expo-status-bar"
 import { useFonts } from "expo-font"
 import * as SplashScreen from "expo-splash-screen"
 import { useEffect } from "react"
 import { Colors } from "../constants"
-
 
 // Previne que a splash screen seja escondida automaticamente
 SplashScreen.preventAutoHideAsync()
@@ -37,8 +34,8 @@ export default function RootLayout() {
           animation: "slide_from_right",
         }}
       >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </>
   )
