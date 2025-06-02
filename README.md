@@ -63,23 +63,14 @@ Assista ao vídeo completo (máximo 5 minutos) demonstrando todas as funcionalid
    cd StormSafe_Mobile
 Instalar dependências
 
-# 1) AsyncStorage (para salvar token e userId)
-expo install @react-native-async-storage/async-storage
+# 1) Instalar o Expo CLI global (para poder usar `expo start`)
+npm install -g expo-cli
 
-# 2) Axios (cliente HTTP, usado em alertas.tsx e usuario.service.ts)
-npm install axios
+# 2) Instalar dependências principais com npm:
+npm install axios expo-router @react-native-async-storage/async-storage react-native-webview react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-svg
 
-# 3) React Native WebView (para a aba “Mapa”)
-expo install react-native-webview
-
-# 4) Expo Router (para navegação via useRouter)
-npm install expo-router
-
-# 5) Dependências de navegação exigidas pelo expo-router / React Navigation
-expo install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated
-
-# 6) (Opcional) React Native SVG – caso use ícones SVG em outros componentes
-expo install react-native-svg
+# 3) Caso prefira usar o ‘expo install’ (após ter o Expo CLI instalado)
+npx expo install @react-native-async-storage/async-storage react-native-webview react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-svg
 
 npm install
 
