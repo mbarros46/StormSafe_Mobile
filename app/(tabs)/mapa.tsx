@@ -1,64 +1,145 @@
-"use client"
+// app/(tabs)/mapa.tsx
 
-import { useRef, useEffect } from "react"
-import { View, Text, StyleSheet, ScrollView, Animated } from "react-native"
-import { Colors } from "../../constants/Colors"
-import { Typography } from "../../constants/Typography"
-import { Spacing } from "../../constants/Spacing"
-import Card from "../../components/ui/Card"
+"use client";
+
+import { useRef, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Animated,
+  Button,
+  Platform,
+  Dimensions,
+} from "react-native";
+import Card from "../../components/ui/Card";
+import { WebView } from "react-native-webview";
+import { Colors } from "../../constants/Colors";
+import { Typography } from "../../constants/Typography";
+import { Spacing } from "../../constants/Spacing";
 
 export default function Mapa() {
-  const fadeAnim = useRef(new Animated.Value(0)).current
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [mapError, setMapError] = useState(false);
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 600,
       useNativeDriver: true,
-    }).start()
-  }, [])
+    }).start();
+  }, [fadeAnim]);
 
   const sensores = [
     { icon: "🌧️", name: "Pluviômetro", status: "Normal", value: "12mm/h" },
     { icon: "🌊", name: "Nível do Rio", status: "Atenção", value: "2.3m" },
     { icon: "💧", name: "Umidade", status: "Normal", value: "78%" },
     { icon: "🌡️", name: "Temperatura", status: "Normal", value: "24°C" },
-  ]
+  ];
+
+  // URL padrão do embed do Google Maps (mapa personalizado)
+  const mapaEmbedUrl =
+    "https://www.google.com/maps/d/u/0/embed?mid=1Ru7-QilgaPibncptnM20yp92Fd5TbVI&ehbc=2E312F";
+
+  // Dimensões para iframe em Web
+  const { width } = Dimensions.get("window");
+  const iframeHeight = 300;
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 64}}
+      contentContainerStyle={{ paddingBottom: 64 }}
       showsVerticalScrollIndicator={false}
-      >
+    >
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* Região Atual */}
         <Card style={styles.regionCard}>
           <Text style={styles.regionIcon}>📍</Text>
           <Text style={styles.regionTitle}>Região Monitorada</Text>
-          <Text style={styles.regionName}>São Paulo - Centro</Text>
+          <Text style={styles.regionName}>São Paulo – Centro</Text>
           <Text style={styles.regionCoords}>Lat: -23.5505, Lng: -46.6333</Text>
         </Card>
 
-        {/* Mapa Placeholder */}
+        {/* Mapa Interativo */}
         <Card style={styles.mapCard}>
-          <View style={styles.mapPlaceholder}>
-            <Text style={styles.mapIcon}>🗺️</Text>
-            <Text style={styles.mapTitle}>Mapa Interativo</Text>
-            <Text style={styles.mapSubtitle}>Visualização em tempo real dos pontos de monitoramento</Text>
-            <View style={styles.mapLegend}>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: Colors.success }]} />
-                <Text style={styles.legendText}>Normal</Text>
+          <View style={styles.mapHeader}>
+            <Text style={styles.mapTitle}>Mapa de Riscos – São Paulo</Text>
+            <Text style={styles.mapSubtitle}>
+              Visualização em tempo real dos pontos de monitoramento
+            </Text>
+          </View>
+
+          <View style={styles.mapContainer}>
+            {mapError ? (
+              <View style={styles.mapFallback}>
+                <Text style={styles.mapIcon}>🗺️</Text>
+                <Text style={styles.mapFallbackTitle}>
+                  Mapa Temporariamente Indisponível
+                </Text>
+                <Text style={styles.mapFallbackText}>
+                  Não foi possível carregar o mapa interativo. Verifique sua
+                  conexão com a internet.
+                </Text>
+                <Button
+                  title="Tentar Novamente"
+                  onPress={() => setMapError(false)}
+                  color={Colors.primary}
+                />
               </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: Colors.warning }]} />
-                <Text style={styles.legendText}>Atenção</Text>
+            ) : Platform.OS === "web" ? (
+              // Se for Web, renderiza <iframe> diretamente
+              <View style={{ width: width - Spacing.lg * 2, height: iframeHeight }}>
+                <iframe
+                  src={mapaEmbedUrl}
+                  width="100%"
+                  height={iframeHeight.toString()}
+                  style={{ border: 0, borderRadius: 12 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                />
               </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: Colors.danger }]} />
-                <Text style={styles.legendText}>Perigo</Text>
-              </View>
+            ) : (
+              // Android / iOS: usa WebView
+              <WebView
+                source={{ uri: mapaEmbedUrl }}
+                style={styles.webview}
+                startInLoadingState={true}
+                renderLoading={() => (
+                  <View style={styles.loadingContainer}>
+                    <Text style={styles.loadingText}>Carregando mapa...</Text>
+                  </View>
+                )}
+                onError={(syntheticEvent) => {
+                  const { nativeEvent } = syntheticEvent;
+                  console.warn("WebView error: ", nativeEvent);
+                  setMapError(true);
+                }}
+                javaScriptEnabled={true}
+                domStorageEnabled={true}
+                allowsInlineMediaPlayback={true}
+              />
+            )}
+          </View>
+
+          <View style={styles.mapLegend}>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: Colors.success }]}
+              />
+              <Text style={styles.legendText}>Normal</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: Colors.warning }]}
+              />
+              <Text style={styles.legendText}>Atenção</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: Colors.danger }]}
+              />
+              <Text style={styles.legendText}>Perigo</Text>
             </View>
           </View>
         </Card>
@@ -74,7 +155,10 @@ export default function Mapa() {
               <View
                 style={[
                   styles.statusBadge,
-                  { backgroundColor: sensor.status === "Normal" ? Colors.success : Colors.warning },
+                  {
+                    backgroundColor:
+                      sensor.status === "Normal" ? Colors.success : Colors.warning,
+                  },
                 ]}
               >
                 <Text style={styles.statusText}>{sensor.status}</Text>
@@ -88,13 +172,14 @@ export default function Mapa() {
           <Text style={styles.infoIcon}>ℹ️</Text>
           <Text style={styles.infoTitle}>Sobre o Monitoramento</Text>
           <Text style={styles.infoText}>
-            Os dados são coletados em tempo real através de uma rede de sensores distribuídos pela região. As
-            informações são atualizadas a cada 5 minutos.
+            Os dados são coletados em tempo real através de uma rede de sensores
+            distribuídos pela região. As informações são atualizadas a cada 5
+            minutos.
           </Text>
         </Card>
       </Animated.View>
     </ScrollView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -105,6 +190,7 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.lg,
   },
+  /* Região Atual */
   regionCard: {
     alignItems: "center",
     marginBottom: Spacing.xl,
@@ -130,35 +216,82 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.sm,
     color: Colors.textMuted,
   },
+
+  /* Card do Mapa */
   mapCard: {
     marginBottom: Spacing.xl,
     padding: 0,
   },
-  mapPlaceholder: {
+  mapHeader: {
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  mapTitle: {
+    fontSize: Typography.sizes.lg,
+    fontWeight: Typography.weights.semibold,
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+  mapSubtitle: {
+    fontSize: Typography.sizes.sm,
+    color: Colors.textMuted,
+  },
+  mapContainer: {
+    height: 300,
+    backgroundColor: Colors.surface,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    overflow: "hidden",
+  },
+  webview: {
+    flex: 1,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.surface,
+  },
+  loadingText: {
+    fontSize: Typography.sizes.base,
+    color: Colors.textMuted,
+  },
+  mapFallback: {
+    height: 300,
+    justifyContent: "center",
     alignItems: "center",
     padding: Spacing.xl,
-    minHeight: 200,
-    justifyContent: "center",
+    backgroundColor: Colors.surfaceLight,
   },
   mapIcon: {
     fontSize: 48,
     marginBottom: Spacing.md,
   },
-  mapTitle: {
-    fontSize: Typography.sizes.xl,
+  mapFallbackTitle: {
+    fontSize: Typography.sizes.lg,
     fontWeight: Typography.weights.semibold,
     color: Colors.text,
     marginBottom: Spacing.sm,
+    textAlign: "center",
   },
-  mapSubtitle: {
+  mapFallbackText: {
     fontSize: Typography.sizes.base,
     color: Colors.textMuted,
     textAlign: "center",
     marginBottom: Spacing.lg,
+    lineHeight: 22,
   },
+
+  /* Legenda do Mapa */
   mapLegend: {
     flexDirection: "row",
     gap: Spacing.lg,
+    padding: Spacing.md,
   },
   legendItem: {
     flexDirection: "row",
@@ -174,6 +307,8 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.sm,
     color: Colors.textMuted,
   },
+
+  /* Sensores */
   sectionTitle: {
     fontSize: Typography.sizes.xl,
     fontWeight: Typography.weights.semibold,
@@ -217,6 +352,8 @@ const styles = StyleSheet.create({
     fontWeight: Typography.weights.semibold,
     color: Colors.white,
   },
+
+  /* Informações Adicionais */
   infoCard: {
     backgroundColor: Colors.surfaceLight,
     borderRadius: 12,
@@ -239,4 +376,4 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     lineHeight: 22,
   },
-})
+});

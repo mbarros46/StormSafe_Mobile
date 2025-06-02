@@ -63,10 +63,8 @@ Assista ao vídeo completo (máximo 5 minutos) demonstrando todas as funcionalid
    cd StormSafe_Mobile
 Instalar dependências
 
-bash
-Copiar
-Editar
 npm install
+npx expo install react-native-webview
 npx expo install react-native-svg
 npx expo install expo-router
 npx expo install react-native-safe-area-context
