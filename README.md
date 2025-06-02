@@ -63,25 +63,35 @@ Assista ao vídeo completo (máximo 5 minutos) demonstrando todas as funcionalid
    cd StormSafe_Mobile
 Instalar dependências
 
-npm install
-npx expo install react-native-webview
-npx expo install react-native-svg
-npx expo install expo-router
-npx expo install react-native-safe-area-context
-npx expo install react-native-gesture-handler react-native-reanimated react-native-screens
-npx expo install @expo/vector-icons
-npx expo install @react-native-async-storage/async-storage expo-secure-store
+# 1) AsyncStorage (para salvar token e userId)
+expo install @react-native-async-storage/async-storage
+
+# 2) Axios (cliente HTTP, usado em alertas.tsx e usuario.service.ts)
 npm install axios
-npm install --save-dev eslint prettier eslint-config-prettier eslint-plugin-react eslint-plugin-react-native
-Configurar variável de ambiente (API_URL)
+
+# 3) React Native WebView (para a aba “Mapa”)
+expo install react-native-webview
+
+# 4) Expo Router (para navegação via useRouter)
+npm install expo-router
+
+# 5) Dependências de navegação exigidas pelo expo-router / React Navigation
+expo install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated
+
+# 6) (Opcional) React Native SVG – caso use ícones SVG em outros componentes
+expo install react-native-svg
+
+npm install
+
+expo start
+
+
 
 Abra services/api.ts e ajuste baseURL para a URL onde a API Java (Spring Boot) está rodando (local ou produção).
 
 Exemplo de baseURL:
 
-ts
-Copiar
-Editar
+
 export const api = axios.create({
   baseURL: "http://localhost:8080", // ou https://stormsafe-api.railway.app
   timeout: 5000,
