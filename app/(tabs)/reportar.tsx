@@ -3,17 +3,19 @@
 import { useState, useRef, useEffect } from "react"
 import { View, Text, StyleSheet, Alert, ScrollView, Animated } from "react-native"
 import api from "../../services/api"
-import { Colors } from "../../constants/Colors";
-import { Typography } from "../../constants/Typography";
-import { Spacing } from "../../constants/Spacing";
+import { Colors } from "../../constants/Colors"
+import { Typography } from "../../constants/Typography"
+import { Spacing } from "../../constants/Spacing"
 import Button from "../../components/ui/Button"
 import Input from "../../components/ui/Input"
 import Card from "../../components/ui/Card"
+import { AlertIcon, WaterDropIcon } from "../../components/ui/CustomIcons"
 
 export default function Reportar() {
   const [titulo, setTitulo] = useState("")
   const [descricao, setDescricao] = useState("")
   const [loading, setLoading] = useState(false)
+  const [formValid, setFormValid] = useState(false)
   const fadeAnim = useRef(new Animated.Value(0)).current
   const successAnim = useRef(new Animated.Value(0)).current
 
@@ -25,9 +27,27 @@ export default function Reportar() {
     }).start()
   }, [])
 
+  // Validação em tempo real
+  useEffect(() => {
+    const isValid = titulo.trim().length >= 5 && descricao.trim().length >= 10
+    setFormValid(isValid)
+  }, [titulo, descricao])
+
+  const validateTitulo = (value: string) => {
+    if (!value.trim()) return "Título é obrigatório"
+    if (value.trim().length < 5) return "Título deve ter pelo menos 5 caracteres"
+    return undefined
+  }
+
+  const validateDescricao = (value: string) => {
+    if (!value.trim()) return "Descrição é obrigatória"
+    if (value.trim().length < 10) return "Descrição deve ter pelo menos 10 caracteres"
+    return undefined
+  }
+
   const enviarRelato = async () => {
-    if (!titulo.trim() || !descricao.trim()) {
-      Alert.alert("Campos obrigatórios", "Por favor, preencha todos os campos.")
+    if (!formValid) {
+      Alert.alert("Formulário incompleto", "Por favor, preencha todos os campos corretamente.")
       return
     }
 
@@ -61,20 +81,20 @@ export default function Reportar() {
   }
 
   return (
-  <ScrollView
-    style={styles.container}
-    contentContainerStyle={{ paddingBottom: 64 }}
-    showsVerticalScrollIndicator={false}
-  >
-    <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-      {/* Header */}
-      <Card style={styles.headerCard}>
-        <Text style={styles.headerIcon}>📢</Text>
-        <Text style={styles.headerTitle}>Reportar Ocorrência</Text>
-        <Text style={styles.headerSubtitle}>
-          Ajude a comunidade reportando alagamentos e situações de risco
-        </Text>
-      </Card>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 100 }}
+      showsVerticalScrollIndicator={false}
+    >
+      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+        {/* Header */}
+        <Card style={styles.headerCard}>
+          <View style={styles.headerIcon}>
+            <AlertIcon size={32} color={Colors.primary} />
+          </View>
+          <Text style={styles.headerTitle}>Reportar Ocorrência</Text>
+          <Text style={styles.headerSubtitle}>Ajude a comunidade reportando alagamentos e situações de risco</Text>
+        </Card>
 
         {/* Formulário */}
         <Card style={styles.formCard}>
@@ -86,6 +106,8 @@ export default function Reportar() {
             onChangeText={setTitulo}
             placeholder="Ex: Alagamento na Rua das Flores"
             maxLength={100}
+            required
+            validate={validateTitulo}
           />
 
           <Input
@@ -97,12 +119,14 @@ export default function Reportar() {
             numberOfLines={4}
             style={styles.textArea}
             maxLength={500}
+            required
+            validate={validateDescricao}
           />
 
           <View style={styles.statusInfo}>
             <Text style={styles.statusLabel}>Status padrão:</Text>
             <View style={styles.statusBadge}>
-              <Text style={styles.statusIcon}>⚠️</Text>
+              <WaterDropIcon size={16} color={Colors.white} />
               <Text style={styles.statusText}>ATENÇÃO</Text>
             </View>
           </View>
@@ -111,9 +135,12 @@ export default function Reportar() {
             title={loading ? "Enviando..." : "Reportar Alerta"}
             onPress={enviarRelato}
             loading={loading}
-            disabled={!titulo.trim() || !descricao.trim()}
-            style={styles.submitButton}
+            disabled={!formValid}
+            style={[styles.submitButton, !formValid && styles.submitButtonDisabled]}
+            gradient={formValid}
           />
+
+          {!formValid && <Text style={styles.validationHint}>Preencha todos os campos para habilitar o envio</Text>}
         </Card>
 
         {/* Dicas */}
@@ -171,7 +198,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceLight,
   },
   headerIcon: {
-    fontSize: 32,
     marginBottom: Spacing.sm,
   },
   headerTitle: {
@@ -220,17 +246,24 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
     borderRadius: 12,
   },
-  statusIcon: {
-    fontSize: 16,
-    marginRight: Spacing.xs,
-  },
   statusText: {
     fontSize: Typography.sizes.sm,
     fontWeight: Typography.weights.semibold,
     color: Colors.white,
+    marginLeft: Spacing.xs,
   },
   submitButton: {
     marginTop: Spacing.md,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+  validationHint: {
+    fontSize: Typography.sizes.sm,
+    color: Colors.textMuted,
+    textAlign: "center",
+    marginTop: Spacing.sm,
+    fontStyle: "italic",
   },
   tipsCard: {
     backgroundColor: Colors.surfaceLight,

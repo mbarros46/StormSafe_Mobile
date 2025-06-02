@@ -1,12 +1,4 @@
-import React from "react"
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  type ViewStyle,
-  type TextStyle,
-} from "react-native"
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, type ViewStyle, type TextStyle } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { Colors, Typography, BorderRadius, Shadows } from "../../constants"
 
@@ -35,13 +27,14 @@ export default function Button({
   style,
   textStyle,
 }: ButtonProps) {
-  const buttonStyle = [styles.base, styles[variant], styles[size], disabled && styles.disabled, style]
+  const isDisabled = disabled || loading
+  const buttonStyle = [styles.base, styles[variant], styles[size], isDisabled && styles.disabled, style]
 
   const textStyles = [
     styles.text,
     styles[`${variant}Text`],
     styles[`${size}Text`],
-    disabled && styles.disabledText,
+    isDisabled && styles.disabledText,
     textStyle,
   ]
 
@@ -61,17 +54,17 @@ export default function Button({
     </>
   )
 
-  const gradientColors: string[] =
-  Colors.gradients?.[variant === "primary" || variant === "danger" || variant === "warning" ? variant : "primary"] ??
-  [Colors.primary, Colors.primaryLight]
+  const gradientColors: string[] = Colors.gradients?.[
+    variant === "primary" || variant === "danger" || variant === "warning" ? variant : "primary"
+  ] ?? [Colors.primary, Colors.primaryLight]
 
   if (gradient && (variant === "primary" || variant === "danger" || variant === "warning")) {
     return (
       <TouchableOpacity
         onPress={onPress}
-        disabled={disabled || loading}
-        activeOpacity={0.8}
-        style={[styles.base, styles[size], disabled && styles.disabled, style]}
+        disabled={isDisabled}
+        activeOpacity={isDisabled ? 1 : 0.8}
+        style={[styles.base, styles[size], isDisabled && styles.disabled, style]}
       >
         <LinearGradient
           colors={gradientColors}
@@ -86,7 +79,7 @@ export default function Button({
   }
 
   return (
-    <TouchableOpacity style={buttonStyle} onPress={onPress} disabled={disabled || loading} activeOpacity={0.8}>
+    <TouchableOpacity style={buttonStyle} onPress={onPress} disabled={isDisabled} activeOpacity={isDisabled ? 1 : 0.8}>
       <ButtonContent />
     </TouchableOpacity>
   )
@@ -133,16 +126,16 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
 
-  // Sizes
+  // Sizes - Garantindo altura mínima de 44px
   sm: {
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    minHeight: 36,
+    paddingVertical: 10,
+    minHeight: 44, // Altura mínima para guidelines
   },
   md: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    minHeight: 44,
+    minHeight: 48,
   },
   lg: {
     paddingHorizontal: 20,

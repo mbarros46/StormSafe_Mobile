@@ -10,6 +10,8 @@ import { Spacing } from "../../constants/Spacing"
 import Button from "../../components/ui/Button"
 import Card from "../../components/ui/Card"
 import StatusBadge from "../../components/ui/StatusBadge"
+import Logo from "../../components/ui/Logo"
+import { CloudRainIcon, ShieldIcon, MapPinIcon } from "../../components/ui/CustomIcons"
 
 const { width } = Dimensions.get("window")
 
@@ -56,8 +58,7 @@ export default function Home() {
           >
             {/* Logo e Título */}
             <View style={styles.logoContainer}>
-              <Text style={styles.logoIcon}>🌧️</Text>
-              <Text style={styles.logoText}>StormSafe</Text>
+              <Logo size="lg" showText={true} variant="light" />
               <Text style={styles.tagline}>Monitoramento de riscos climáticos em tempo real</Text>
             </View>
 
@@ -133,19 +134,19 @@ export default function Home() {
         {/* Cards Informativos */}
         <View style={styles.infoCards}>
           <Card variant="gradient" gradient={[Colors.primary, Colors.primaryLight]} style={styles.infoCard}>
-            <Text style={styles.infoIcon}>📊</Text>
+            <CloudRainIcon size={32} color={Colors.white} />
             <Text style={styles.infoTitle}>Dados em Tempo Real</Text>
             <Text style={styles.infoDescription}>Monitoramento contínuo de 12 sensores distribuídos pela região</Text>
           </Card>
 
           <Card variant="outlined" style={styles.infoCard}>
-            <Text style={styles.infoIcon}>🚨</Text>
+            <ShieldIcon size={32} color={Colors.danger} />
             <Text style={styles.infoTitle}>Sistema de Alertas</Text>
             <Text style={styles.infoDescription}>Notificações instantâneas para situações de risco</Text>
           </Card>
 
           <Card variant="outlined" style={styles.infoCard}>
-            <Text style={styles.infoIcon}>👥</Text>
+            <MapPinIcon size={32} color={Colors.success} />
             <Text style={styles.infoTitle}>Comunidade Ativa</Text>
             <Text style={styles.infoDescription}>Relatos colaborativos para melhor cobertura</Text>
           </Card>
@@ -194,25 +195,13 @@ const styles = StyleSheet.create({
     marginBottom: Spacing["4xl"],
   },
 
-  logoIcon: {
-    fontSize: 64,
-    marginBottom: Spacing.md,
-  },
-
-  logoText: {
-    fontSize: Typography.sizes["6xl"],
-    fontWeight: Typography.weights.bold,
-    color: Colors.primary,
-    marginBottom: Spacing.sm,
-    textAlign: "center",
-  },
-
   tagline: {
     fontSize: Typography.sizes.lg,
     color: Colors.textSecondary,
     textAlign: "center",
     lineHeight: Typography.lineHeights.relaxed * Typography.sizes.lg,
     paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
   },
 
   statusCard: {
@@ -300,17 +289,13 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
   },
 
-  infoIcon: {
-    fontSize: 32,
-    marginBottom: Spacing.md,
-  },
-
   infoTitle: {
     fontSize: Typography.sizes.lg,
     fontWeight: Typography.weights.semibold,
     color: Colors.text,
     marginBottom: Spacing.sm,
     textAlign: "center",
+    marginTop: Spacing.md,
   },
 
   infoDescription: {
