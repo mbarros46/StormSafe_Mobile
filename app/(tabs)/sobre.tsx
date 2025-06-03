@@ -137,18 +137,7 @@ export default function Sobre() {
           </View>
         </Card>
 
-        {/* Licença */}
-        <Card style={styles.licenseCard}>
-          <Text style={styles.licenseIcon}>📄</Text>
-          <Text style={styles.licenseTitle}>Licença e Termos</Text>
-          <Text style={styles.licenseText}>
-            Este aplicativo é distribuído sob licença MIT. Os dados meteorológicos são fornecidos por fontes públicas e
-            parceiros especializados.
-          </Text>
-          <TouchableOpacity onPress={() => abrirLink("https://stormsafe.com.br/termos")}>
-            <Text style={styles.linkText}>Ver Termos de Uso</Text>
-          </TouchableOpacity>
-        </Card>
+       
 
         {/* Footer */}
         <View style={styles.footer}>
