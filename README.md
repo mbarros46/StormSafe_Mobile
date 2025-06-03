@@ -63,18 +63,11 @@ Assista ao vídeo completo (máximo 5 minutos) demonstrando todas as funcionalid
    cd StormSafe_Mobile
 Instalar dependências
 
-# 1) Instalar o Expo CLI global (para poder usar `expo start`)
-npm install -g expo-cli
+npm uninstall -g expo-cli
+npx expo install
+npx expo doctor --fix-dependencies
 
-# 2) Instalar dependências principais com npm:
-npm install axios expo-router @react-native-async-storage/async-storage react-native-webview react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-svg
-
-# 3) Caso prefira usar o ‘expo install’ (após ter o Expo CLI instalado)
-npx expo install @react-native-async-storage/async-storage react-native-webview react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-svg
-
-npm install
-
-expo start
+npx expo start
 
 
 
