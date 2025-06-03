@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react"
 import { View, Text, StyleSheet, ScrollView, Animated, Alert, TouchableOpacity } from "react-native"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import { useRouter } from "expo-router"
 import { LinearGradient } from "expo-linear-gradient"
 import { Colors } from "../../constants/Colors"
@@ -12,12 +11,15 @@ import { BorderRadius } from "../../constants/BorderRadius"
 import Card from "../../components/ui/Card"
 import Button from "../../components/ui/Button"
 import Input from "../../components/ui/Input"
+import LoadingOverlay from "../../components/ui/LoadingOverlay"
+import { useAuth } from "../../contexts/AuthContext"
+import { useToast } from "../../hooks/useToast"
 
 export default function Perfil() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { user, isAuthenticated, isLoading, login, register, logout } = useAuth()
+  const { showSuccess, showError, showWarning, showInfo } = useToast() // Declare showInfo here
   const [activeTab, setActiveTab] = useState<"login" | "cadastro">("login")
-  const [loading, setLoading] = useState(false)
-  const [checkingAuth, setCheckingAuth] = useState(true)
+  const [formLoading, setFormLoading] = useState(false)
   const fadeAnim = useRef(new Animated.Value(0)).current
   const slideAnim = useRef(new Animated.Value(30)).current
   const router = useRouter()
@@ -30,17 +32,11 @@ export default function Perfil() {
   const [nomeCompleto, setNomeCompleto] = useState("")
   const [emailCadastro, setEmailCadastro] = useState("")
   const [telefone, setTelefone] = useState("")
-  const [tipoUsuario, setTipoUsuario] = useState("CIDADAO")
+  const [tipoUsuario, setTipoUsuario] = useState<"CIDADAO" | "GESTOR">("CIDADAO")
   const [senhaCadastro, setSenhaCadastro] = useState("")
   const [confirmarSenha, setConfirmarSenha] = useState("")
 
-  const baseUrl =
-    typeof window !== "undefined" && window.location.hostname === "localhost"
-      ? "http://localhost:8080"
-      : "http://192.168.15.128:8080"
-
   useEffect(() => {
-    verificarAutenticacao()
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -55,48 +51,24 @@ export default function Perfil() {
     ]).start()
   }, [])
 
-  const verificarAutenticacao = async () => {
-    try {
-      const token = await AsyncStorage.getItem("token")
-      setIsLoggedIn(!!token)
-    } catch (error) {
-      console.error("Erro ao verificar autenticação:", error)
-    } finally {
-      setCheckingAuth(false)
-    }
-  }
-
   const handleLogin = async () => {
     if (!email.trim() || !senha.trim()) {
-      Alert.alert("Campos obrigatórios", "Por favor, preencha todos os campos.")
+      showWarning("Por favor, preencha todos os campos.")
       return
     }
 
-    setLoading(true)
+    setFormLoading(true)
     try {
-      const response = await fetch(`${baseUrl}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: email.trim(), senha }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Falha no login")
+      const success = await login(email.trim(), senha)
+      if (success) {
+        showSuccess("Login realizado com sucesso!")
+        setEmail("")
+        setSenha("")
       }
-
-      const data = await response.json()
-      await AsyncStorage.setItem("token", data.token)
-      setIsLoggedIn(true)
-      setEmail("")
-      setSenha("")
-      Alert.alert("Sucesso", "Login realizado com sucesso!")
-    } catch (error: any) {
-      Alert.alert("Erro ao entrar", error.message || "Erro desconhecido")
+    } catch (error) {
+      showError("Erro inesperado durante o login")
     } finally {
-      setLoading(false)
+      setFormLoading(false)
     }
   }
 
@@ -108,59 +80,57 @@ export default function Perfil() {
       !senhaCadastro.trim() ||
       !confirmarSenha.trim()
     ) {
-      Alert.alert("Campos obrigatórios", "Por favor, preencha todos os campos.")
+      showWarning("Por favor, preencha todos os campos.")
       return
     }
 
     if (senhaCadastro !== confirmarSenha) {
-      Alert.alert("Erro", "As senhas não coincidem.")
+      showError("As senhas não coincidem.")
       return
     }
 
     if (senhaCadastro.length < 6) {
-      Alert.alert("Erro", "A senha deve ter pelo menos 6 caracteres.")
+      showError("A senha deve ter pelo menos 6 caracteres.")
       return
     }
 
-    setLoading(true)
+    // Validação de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(emailCadastro.trim())) {
+      showError("Por favor, insira um email válido.")
+      return
+    }
+
+    // Validação de telefone
+    const telefoneRegex = /^$$\d{2}$$\s\d{4,5}-\d{4}$/
+    if (!telefoneRegex.test(telefone.trim())) {
+      showError("Por favor, insira um telefone válido no formato (11) 99999-9999.")
+      return
+    }
+
+    setFormLoading(true)
     try {
-      const response = await fetch(`${baseUrl}/auth/cadastro`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nome: nomeCompleto.trim(),
-          email: emailCadastro.trim(),
-          telefone: telefone.trim(),
-          tipoUsuario,
-          senha: senhaCadastro,
-        }),
+      const success = await register({
+        nome: nomeCompleto.trim(),
+        email: emailCadastro.trim(),
+        telefone: telefone.trim(),
+        tipoUsuario,
+        senha: senhaCadastro,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Falha no cadastro")
+      if (success) {
+        setActiveTab("login")
+        setNomeCompleto("")
+        setEmailCadastro("")
+        setTelefone("")
+        setTipoUsuario("CIDADAO")
+        setSenhaCadastro("")
+        setConfirmarSenha("")
       }
-
-      Alert.alert("Sucesso", "Cadastro realizado com sucesso! Agora você pode fazer login.", [
-        {
-          text: "OK",
-          onPress: () => {
-            setActiveTab("login")
-            setNomeCompleto("")
-            setEmailCadastro("")
-            setTelefone("")
-            setTipoUsuario("CIDADAO")
-            setSenhaCadastro("")
-            setConfirmarSenha("")
-          },
-        },
-      ])
-    } catch (error: any) {
-      Alert.alert("Erro no cadastro", error.message || "Erro desconhecido")
+    } catch (error) {
+      showError("Erro inesperado durante o cadastro")
     } finally {
-      setLoading(false)
+      setFormLoading(false)
     }
   }
 
@@ -171,27 +141,38 @@ export default function Perfil() {
         text: "Sair",
         style: "destructive",
         onPress: async () => {
-          try {
-            await AsyncStorage.removeItem("token")
-            setIsLoggedIn(false)
-            Alert.alert("Sucesso", "Logout realizado com sucesso!")
-          } catch (error) {
-            Alert.alert("Erro", "Não foi possível fazer logout.")
-          }
+          await logout()
         },
       },
     ])
   }
 
-  if (checkingAuth) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Verificando autenticação...</Text>
-      </View>
-    )
+  const formatTelefone = (text: string) => {
+    // Remove tudo que não é número
+    const numbers = text.replace(/\D/g, "")
+
+    // Aplica a máscara
+    if (numbers.length <= 2) {
+      return `(${numbers}`
+    } else if (numbers.length <= 6) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`
+    } else if (numbers.length <= 10) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`
+    } else {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`
+    }
   }
 
-  if (isLoggedIn) {
+  const handleTelefoneChange = (text: string) => {
+    const formatted = formatTelefone(text)
+    setTelefone(formatted)
+  }
+
+  if (isLoading) {
+    return <LoadingOverlay visible={true} message="Verificando autenticação..." />
+  }
+
+  if (isAuthenticated && user) {
     return (
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
         <LinearGradient
@@ -213,9 +194,11 @@ export default function Perfil() {
               <View style={styles.avatarCircle}>
                 <Text style={styles.avatarText}>👤</Text>
               </View>
-              <Text style={styles.userName}>Usuário StormSafe</Text>
+              <Text style={styles.userName}>{user.nome}</Text>
               <View style={styles.userStatusBadge}>
-                <Text style={styles.userStatusText}>Conta Ativa</Text>
+                <Text style={styles.userStatusText}>
+                  {user.tipoUsuario === "GESTOR" ? "Gestor Público" : "Cidadão"}
+                </Text>
               </View>
             </View>
           </Animated.View>
@@ -262,10 +245,7 @@ export default function Perfil() {
 
             <View style={styles.menuDivider} />
 
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => Alert.alert("Em breve", "Funcionalidade em desenvolvimento")}
-            >
+            <TouchableOpacity style={styles.menuItem} onPress={() => showInfo("Funcionalidade em desenvolvimento")}>
               <View style={[styles.menuIcon, { backgroundColor: "#4C6EF5" }]}>
                 <Text style={styles.menuIconText}>📋</Text>
               </View>
@@ -294,18 +274,18 @@ export default function Perfil() {
           <Text style={styles.sectionTitle}>Informações da Conta</Text>
           <Card style={styles.infoCard}>
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Status</Text>
-              <Text style={styles.infoValue}>Ativo</Text>
+              <Text style={styles.infoLabel}>Email</Text>
+              <Text style={styles.infoValue}>{user.email}</Text>
             </View>
             <View style={styles.infoDivider} />
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Membro desde</Text>
-              <Text style={styles.infoValue}>{new Date().toLocaleDateString()}</Text>
+              <Text style={styles.infoLabel}>Telefone</Text>
+              <Text style={styles.infoValue}>{user.telefone || "Não informado"}</Text>
             </View>
             <View style={styles.infoDivider} />
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Último acesso</Text>
-              <Text style={styles.infoValue}>Hoje</Text>
+              <Text style={styles.infoLabel}>Tipo</Text>
+              <Text style={styles.infoValue}>{user.tipoUsuario === "GESTOR" ? "Gestor Público" : "Cidadão"}</Text>
             </View>
           </Card>
 
@@ -324,204 +304,221 @@ export default function Perfil() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
-      <LinearGradient
-        colors={["#1A365D", "#2A4A80"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.authHeaderGradient}
-      >
+    <>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
+        <LinearGradient
+          colors={["#1A365D", "#2A4A80"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.authHeaderGradient}
+        >
+          <Animated.View
+            style={[
+              styles.authHeaderContent,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <Text style={styles.appLogo}>🌧️</Text>
+            <Text style={styles.appName}>StormSafe</Text>
+            <Text style={styles.appTagline}>Monitoramento inteligente de riscos climáticos</Text>
+          </Animated.View>
+        </LinearGradient>
+
         <Animated.View
           style={[
-            styles.authHeaderContent,
+            styles.authContent,
             {
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
             },
           ]}
         >
-          <Text style={styles.appLogo}>🌧️</Text>
-          <Text style={styles.appName}>StormSafe</Text>
-          <Text style={styles.appTagline}>Monitoramento inteligente de riscos climáticos</Text>
-        </Animated.View>
-      </LinearGradient>
+          {/* Tabs de Login/Cadastro */}
+          <View style={styles.authTabs}>
+            <TouchableOpacity
+              style={[styles.authTab, activeTab === "login" && styles.authTabActive]}
+              onPress={() => setActiveTab("login")}
+            >
+              <Text style={[styles.authTabText, activeTab === "login" && styles.authTabTextActive]}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.authTab, activeTab === "cadastro" && styles.authTabActive]}
+              onPress={() => setActiveTab("cadastro")}
+            >
+              <Text style={[styles.authTabText, activeTab === "cadastro" && styles.authTabTextActive]}>Cadastro</Text>
+            </TouchableOpacity>
+          </View>
 
-      <Animated.View
-        style={[
-          styles.authContent,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}
-      >
-        {/* Tabs de Login/Cadastro */}
-        <View style={styles.authTabs}>
-          <TouchableOpacity
-            style={[styles.authTab, activeTab === "login" && styles.authTabActive]}
-            onPress={() => setActiveTab("login")}
-          >
-            <Text style={[styles.authTabText, activeTab === "login" && styles.authTabTextActive]}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.authTab, activeTab === "cadastro" && styles.authTabActive]}
-            onPress={() => setActiveTab("cadastro")}
-          >
-            <Text style={[styles.authTabText, activeTab === "cadastro" && styles.authTabTextActive]}>Cadastro</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Formulário */}
+          <Card style={styles.authCard}>
+            {activeTab === "login" ? (
+              <>
+                <Text style={styles.authCardTitle}>Bem-vindo de volta!</Text>
+                <Text style={styles.authCardSubtitle}>Entre com suas credenciais para continuar</Text>
 
-        {/* Formulário */}
-        <Card style={styles.authCard}>
-          {activeTab === "login" ? (
-            <>
-              <Text style={styles.authCardTitle}>Bem-vindo de volta!</Text>
-              <Text style={styles.authCardSubtitle}>Entre com suas credenciais para continuar</Text>
+                <Input
+                  label="Email"
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="seu@email.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  required
+                />
+                <Input
+                  label="Senha"
+                  value={senha}
+                  onChangeText={setSenha}
+                  placeholder="Sua senha"
+                  secureTextEntry
+                  required
+                />
 
-              <Input
-                label="Email"
-                value={email}
-                onChangeText={setEmail}
-                placeholder="seu@email.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-              <Input label="Senha" value={senha} onChangeText={setSenha} placeholder="Sua senha" secureTextEntry />
+                <Button
+                  title={formLoading ? "Entrando..." : "Entrar"}
+                  onPress={handleLogin}
+                  loading={formLoading}
+                  disabled={!email.trim() || !senha.trim() || formLoading}
+                  style={styles.authButton}
+                  gradient
+                />
 
-              <Button
-                title={loading ? "Entrando..." : "Entrar"}
-                onPress={handleLogin}
-                loading={loading}
-                disabled={!email.trim() || !senha.trim()}
-                style={styles.authButton}
-                gradient
-              />
+                <TouchableOpacity style={styles.forgotPassword}>
+                  <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={styles.authCardTitle}>Crie sua conta</Text>
+                <Text style={styles.authCardSubtitle}>Junte-se à comunidade StormSafe</Text>
 
-              <TouchableOpacity style={styles.forgotPassword}>
-                <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <Text style={styles.authCardTitle}>Crie sua conta</Text>
-              <Text style={styles.authCardSubtitle}>Junte-se à comunidade StormSafe</Text>
+                <Input
+                  label="Nome Completo"
+                  value={nomeCompleto}
+                  onChangeText={setNomeCompleto}
+                  placeholder="Seu nome completo"
+                  required
+                />
+                <Input
+                  label="Email"
+                  value={emailCadastro}
+                  onChangeText={setEmailCadastro}
+                  placeholder="seu@email.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  required
+                />
+                <Input
+                  label="Telefone"
+                  value={telefone}
+                  onChangeText={handleTelefoneChange}
+                  placeholder="(11) 99999-9999"
+                  keyboardType="phone-pad"
+                  required
+                />
 
-              <Input
-                label="Nome Completo"
-                value={nomeCompleto}
-                onChangeText={setNomeCompleto}
-                placeholder="Seu nome completo"
-                required
-              />
-              <Input
-                label="Email"
-                value={emailCadastro}
-                onChangeText={setEmailCadastro}
-                placeholder="seu@email.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                required
-              />
-              <Input
-                label="Telefone"
-                value={telefone}
-                onChangeText={setTelefone}
-                placeholder="(11) 99999-9999"
-                keyboardType="phone-pad"
-                required
-              />
-
-              <View style={styles.selectContainer}>
-                <Text style={styles.selectLabel}>Tipo de Usuário *</Text>
-                <View style={styles.selectOptions}>
-                  <TouchableOpacity
-                    style={[styles.selectOption, tipoUsuario === "CIDADAO" && styles.selectOptionActive]}
-                    onPress={() => setTipoUsuario("CIDADAO")}
-                  >
-                    <Text style={[styles.selectOptionText, tipoUsuario === "CIDADAO" && styles.selectOptionTextActive]}>
-                      👤 Cidadão
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.selectOption, tipoUsuario === "GESTOR" && styles.selectOptionActive]}
-                    onPress={() => setTipoUsuario("GESTOR")}
-                  >
-                    <Text style={[styles.selectOptionText, tipoUsuario === "GESTOR" && styles.selectOptionTextActive]}>
-                      🏛️ Gestor Público
-                    </Text>
-                  </TouchableOpacity>
+                <View style={styles.selectContainer}>
+                  <Text style={styles.selectLabel}>Tipo de Usuário *</Text>
+                  <View style={styles.selectOptions}>
+                    <TouchableOpacity
+                      style={[styles.selectOption, tipoUsuario === "CIDADAO" && styles.selectOptionActive]}
+                      onPress={() => setTipoUsuario("CIDADAO")}
+                    >
+                      <Text
+                        style={[styles.selectOptionText, tipoUsuario === "CIDADAO" && styles.selectOptionTextActive]}
+                      >
+                        👤 Cidadão
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.selectOption, tipoUsuario === "GESTOR" && styles.selectOptionActive]}
+                      onPress={() => setTipoUsuario("GESTOR")}
+                    >
+                      <Text
+                        style={[styles.selectOptionText, tipoUsuario === "GESTOR" && styles.selectOptionTextActive]}
+                      >
+                        🏛️ Gestor Público
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
 
-              <Input
-                label="Senha"
-                value={senhaCadastro}
-                onChangeText={setSenhaCadastro}
-                placeholder="Mínimo 6 caracteres"
-                secureTextEntry
-                required
-              />
-              <Input
-                label="Confirmar Senha"
-                value={confirmarSenha}
-                onChangeText={setConfirmarSenha}
-                placeholder="Digite a senha novamente"
-                secureTextEntry
-                required
-              />
+                <Input
+                  label="Senha"
+                  value={senhaCadastro}
+                  onChangeText={setSenhaCadastro}
+                  placeholder="Mínimo 6 caracteres"
+                  secureTextEntry
+                  required
+                />
+                <Input
+                  label="Confirmar Senha"
+                  value={confirmarSenha}
+                  onChangeText={setConfirmarSenha}
+                  placeholder="Digite a senha novamente"
+                  secureTextEntry
+                  required
+                />
 
-              <Button
-                title={loading ? "Criando conta..." : "Criar Conta"}
-                onPress={handleCadastro}
-                loading={loading}
-                disabled={
-                  !nomeCompleto.trim() ||
-                  !emailCadastro.trim() ||
-                  !telefone.trim() ||
-                  !senhaCadastro.trim() ||
-                  !confirmarSenha.trim()
-                }
-                style={styles.authButton}
-                gradient
-              />
-            </>
-          )}
-        </Card>
+                <Button
+                  title={formLoading ? "Criando conta..." : "Criar Conta"}
+                  onPress={handleCadastro}
+                  loading={formLoading}
+                  disabled={
+                    !nomeCompleto.trim() ||
+                    !emailCadastro.trim() ||
+                    !telefone.trim() ||
+                    !senhaCadastro.trim() ||
+                    !confirmarSenha.trim() ||
+                    formLoading
+                  }
+                  style={styles.authButton}
+                  gradient
+                />
+              </>
+            )}
+          </Card>
 
-        {/* Uso sem conta */}
-        <Card style={styles.guestCard}>
-          <Text style={styles.guestTitle}>Prefere usar sem conta?</Text>
-          <Text style={styles.guestText}>
-            Você pode usar o StormSafe sem criar uma conta. O login é opcional e permite salvar suas preferências e
-            histórico de alertas.
-          </Text>
-          <Button
-            title="Continuar como Visitante"
-            onPress={() => router.push("/(tabs)")}
-            variant="outline"
-            size="md"
-            style={styles.guestButton}
-          />
-        </Card>
+          {/* Uso sem conta */}
+          <Card style={styles.guestCard}>
+            <Text style={styles.guestTitle}>Prefere usar sem conta?</Text>
+            <Text style={styles.guestText}>
+              Você pode usar o StormSafe sem criar uma conta. O login é opcional e permite salvar suas preferências e
+              histórico de alertas.
+            </Text>
+            <Button
+              title="Continuar como Visitante"
+              onPress={() => router.push("/(tabs)")}
+              variant="outline"
+              size="md"
+              style={styles.guestButton}
+            />
+          </Card>
 
-        {/* Benefícios */}
-        <Card style={styles.benefitsCard}>
-          <Text style={styles.benefitsTitle}>Benefícios da conta</Text>
-          <View style={styles.benefitItem}>
-            <Text style={styles.benefitIcon}>✓</Text>
-            <Text style={styles.benefitText}>Alertas personalizados para sua região</Text>
-          </View>
-          <View style={styles.benefitItem}>
-            <Text style={styles.benefitIcon}>✓</Text>
-            <Text style={styles.benefitText}>Histórico de relatos e notificações</Text>
-          </View>
-          <View style={styles.benefitItem}>
-            <Text style={styles.benefitIcon}>✓</Text>
-            <Text style={styles.benefitText}>Configurações salvas em todos os dispositivos</Text>
-          </View>
-        </Card>
-      </Animated.View>
-    </ScrollView>
+          {/* Benefícios */}
+          <Card style={styles.benefitsCard}>
+            <Text style={styles.benefitsTitle}>Benefícios da conta</Text>
+            <View style={styles.benefitItem}>
+              <Text style={styles.benefitIcon}>✓</Text>
+              <Text style={styles.benefitText}>Alertas personalizados para sua região</Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <Text style={styles.benefitIcon}>✓</Text>
+              <Text style={styles.benefitText}>Histórico de relatos e notificações</Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <Text style={styles.benefitIcon}>✓</Text>
+              <Text style={styles.benefitText}>Configurações salvas em todos os dispositivos</Text>
+            </View>
+          </Card>
+        </Animated.View>
+      </ScrollView>
+
+      <LoadingOverlay visible={formLoading} message={activeTab === "login" ? "Fazendo login..." : "Criando conta..."} />
+    </>
   )
 }
 
@@ -529,16 +526,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-  },
-  loadingText: {
-    fontSize: Typography.sizes.base,
-    color: Colors.textMuted,
   },
 
   // Header para usuário logado
