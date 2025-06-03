@@ -101,6 +101,7 @@ export default function Perfil() {
       return
     }
 
+    
     // Validação de telefone
     const telefoneRegex = /^$$\d{2}$$\s\d{4,5}-\d{4}$/
     if (!telefoneRegex.test(telefone.trim())) {
