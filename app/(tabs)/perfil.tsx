@@ -101,9 +101,9 @@ export default function Perfil() {
       return
     }
 
-    
+
     // Validação de telefone
-    const telefoneRegex = /^$$\d{2}$$\s\d{4,5}-\d{4}$/
+    const telefoneRegex = /^\(\d{2}\)\s9\d{4}-\d{4}$/
     if (!telefoneRegex.test(telefone.trim())) {
       showError("Por favor, insira um telefone válido no formato (11) 99999-9999.")
       return
