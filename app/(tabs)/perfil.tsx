@@ -29,6 +29,8 @@ export default function Perfil() {
   // Estados do formulário de cadastro
   const [nomeCompleto, setNomeCompleto] = useState("")
   const [emailCadastro, setEmailCadastro] = useState("")
+  const [telefone, setTelefone] = useState("")
+  const [tipoUsuario, setTipoUsuario] = useState("CIDADAO")
   const [senhaCadastro, setSenhaCadastro] = useState("")
   const [confirmarSenha, setConfirmarSenha] = useState("")
 
@@ -99,7 +101,13 @@ export default function Perfil() {
   }
 
   const handleCadastro = async () => {
-    if (!nomeCompleto.trim() || !emailCadastro.trim() || !senhaCadastro.trim() || !confirmarSenha.trim()) {
+    if (
+      !nomeCompleto.trim() ||
+      !emailCadastro.trim() ||
+      !telefone.trim() ||
+      !senhaCadastro.trim() ||
+      !confirmarSenha.trim()
+    ) {
       Alert.alert("Campos obrigatórios", "Por favor, preencha todos os campos.")
       return
     }
@@ -124,6 +132,8 @@ export default function Perfil() {
         body: JSON.stringify({
           nome: nomeCompleto.trim(),
           email: emailCadastro.trim(),
+          telefone: telefone.trim(),
+          tipoUsuario,
           senha: senhaCadastro,
         }),
       })
@@ -140,6 +150,8 @@ export default function Perfil() {
             setActiveTab("login")
             setNomeCompleto("")
             setEmailCadastro("")
+            setTelefone("")
+            setTipoUsuario("CIDADAO")
             setSenhaCadastro("")
             setConfirmarSenha("")
           },
@@ -399,6 +411,7 @@ export default function Perfil() {
                 value={nomeCompleto}
                 onChangeText={setNomeCompleto}
                 placeholder="Seu nome completo"
+                required
               />
               <Input
                 label="Email"
@@ -407,13 +420,46 @@ export default function Perfil() {
                 placeholder="seu@email.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                required
               />
+              <Input
+                label="Telefone"
+                value={telefone}
+                onChangeText={setTelefone}
+                placeholder="(11) 99999-9999"
+                keyboardType="phone-pad"
+                required
+              />
+
+              <View style={styles.selectContainer}>
+                <Text style={styles.selectLabel}>Tipo de Usuário *</Text>
+                <View style={styles.selectOptions}>
+                  <TouchableOpacity
+                    style={[styles.selectOption, tipoUsuario === "CIDADAO" && styles.selectOptionActive]}
+                    onPress={() => setTipoUsuario("CIDADAO")}
+                  >
+                    <Text style={[styles.selectOptionText, tipoUsuario === "CIDADAO" && styles.selectOptionTextActive]}>
+                      👤 Cidadão
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.selectOption, tipoUsuario === "GESTOR" && styles.selectOptionActive]}
+                    onPress={() => setTipoUsuario("GESTOR")}
+                  >
+                    <Text style={[styles.selectOptionText, tipoUsuario === "GESTOR" && styles.selectOptionTextActive]}>
+                      🏛️ Gestor Público
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               <Input
                 label="Senha"
                 value={senhaCadastro}
                 onChangeText={setSenhaCadastro}
                 placeholder="Mínimo 6 caracteres"
                 secureTextEntry
+                required
               />
               <Input
                 label="Confirmar Senha"
@@ -421,6 +467,7 @@ export default function Perfil() {
                 onChangeText={setConfirmarSenha}
                 placeholder="Digite a senha novamente"
                 secureTextEntry
+                required
               />
 
               <Button
@@ -428,7 +475,11 @@ export default function Perfil() {
                 onPress={handleCadastro}
                 loading={loading}
                 disabled={
-                  !nomeCompleto.trim() || !emailCadastro.trim() || !senhaCadastro.trim() || !confirmarSenha.trim()
+                  !nomeCompleto.trim() ||
+                  !emailCadastro.trim() ||
+                  !telefone.trim() ||
+                  !senhaCadastro.trim() ||
+                  !confirmarSenha.trim()
                 }
                 style={styles.authButton}
                 gradient
@@ -784,5 +835,41 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.base,
     color: Colors.textSecondary,
     flex: 1,
+  },
+  selectContainer: {
+    marginBottom: Spacing.md,
+  },
+  selectLabel: {
+    fontSize: Typography.sizes.sm,
+    fontWeight: Typography.weights.medium,
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+  selectOptions: {
+    flexDirection: "row",
+    gap: Spacing.sm,
+  },
+  selectOption: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    alignItems: "center",
+  },
+  selectOptionActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  selectOptionText: {
+    fontSize: Typography.sizes.sm,
+    color: Colors.textMuted,
+    textAlign: "center",
+  },
+  selectOptionTextActive: {
+    color: Colors.white,
+    fontWeight: Typography.weights.semibold,
   },
 })

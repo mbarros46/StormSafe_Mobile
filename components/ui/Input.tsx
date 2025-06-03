@@ -29,9 +29,9 @@ export default function Input({
   style,
   onChangeText,
   value,
-  onFocus,       // repassa se o usuário quiser
-  onBlur,        // repassa se o usuário quiser
-  ...props       // qualquer outra prop de TextInput propagada
+  onFocus, // repassa se o usuário quiser
+  onBlur, // repassa se o usuário quiser
+  ...props // qualquer outra prop de TextInput propagada
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false)
   const [internalError, setInternalError] = useState<string>()
@@ -91,6 +91,7 @@ export default function Input({
           styles.input,
           isFocused && styles.inputFocused,
           showError && styles.inputError,
+          required && hasBeenTouched && (!value || !value.trim()) && styles.inputRequired,
           style as any, // cast apenas para suprimir warning de TS se necessário
         ]}
         placeholderTextColor={Colors.textMuted}
@@ -99,7 +100,7 @@ export default function Input({
         onBlur={handleBlurInternal}
         onChangeText={handleChangeText}
         value={value}
-        {...props}  // Propaga TODO o restante (keyboardType, secureTextEntry etc.)
+        {...props} // Propaga TODO o restante (keyboardType, secureTextEntry etc.)
       />
 
       {showError && <Text style={styles.errorText}>{currentError}</Text>}
@@ -153,5 +154,10 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     color: Colors.textMuted,
     marginTop: Spacing.xs,
+  },
+  inputRequired: {
+    borderColor: Colors.danger,
+    borderWidth: 2,
+    backgroundColor: "rgba(239, 68, 68, 0.05)",
   },
 })
