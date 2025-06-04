@@ -123,8 +123,8 @@ export default function Sobre() {
 
           <View style={styles.contactButtons}>
             <Button
-              title="Site Oficial"
-              onPress={() => abrirLink("https://stormsafe.com.br")}
+              title="Github"
+              onPress={() => abrirLink("https://github.com/mbarros46/StormSafe_Mobile.git")}
               variant="secondary"
               size="sm"
             />
