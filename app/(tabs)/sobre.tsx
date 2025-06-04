@@ -137,8 +137,7 @@ export default function Sobre() {
           </View>
         </Card>
 
-       
-
+    
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>© 2025 StormSafe. Todos os direitos reservados.</Text>
