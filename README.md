@@ -82,9 +82,7 @@ export const api = axios.create({
 });
 Executar o app
 
-bash
-Copiar
-Editar
+
 npx expo start -c
 Escaneie o QR Code com o Expo Go no seu dispositivo, ou pressione a (Android) / i (iOS) para abrir emulador.
 
@@ -164,9 +162,7 @@ eslint / prettier / eslint-plugin-react-native – Ferramentas de lint e formata
 Scripts Disponíveis
 No package.json, você encontra os seguintes scripts:
 
-jsonc
-Copiar
-Editar
+
 {
   "scripts": {
     "start": "expo start",                // Inicia o Expo DevTools
