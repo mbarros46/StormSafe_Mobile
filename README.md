@@ -1,7 +1,7 @@
 
 # 📱 StormSafe Mobile
 
-Este repositório contém o aplicativo móvel **StormSafe Mobile**, parte da solução integrada **StormSafe**, criada para o desafio **Global Solution 2025 da FIAP** em parceria com a **Mottu**.
+Este repositório contém o aplicativo móvel **StormSafe Mobile**, parte da solução integrada **StormSafe**, criada para o desafio **Global Solution 2025 da FIAP** 
 
 ---
 
