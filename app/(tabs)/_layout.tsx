@@ -2,7 +2,7 @@ import React from "react"
 import { Tabs } from "expo-router"
 import { Colors, Typography } from "../../constants"
 import { BlurView } from "expo-blur"
-import { Platform } from "react-native"
+import { Platform, Text } from "react-native"
 
 export default function TabLayout() {
   return (
@@ -84,14 +84,14 @@ export default function TabLayout() {
 
 function TabIcon({ name, color, size }: { name: string; color: string; size: number }) {
   return (
-    <span
+    <Text
       style={{
         fontSize: size + 2,
-        filter: color === Colors.textMuted ? "grayscale(0.7)" : "none",
+        color: color,
         opacity: color === Colors.textMuted ? 0.7 : 1,
       }}
     >
       {name}
-    </span>
+    </Text>
   )
 }

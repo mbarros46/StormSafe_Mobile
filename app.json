@@ -3,7 +3,6 @@
     "name": "StormSafe",
     "slug": "stormsafe-mobile",
     "version": "1.0.0",
-    "sdkVersion": "50.0.0",
     "platforms": [
       "ios",
       "android",
@@ -27,6 +26,10 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font",
+      "expo-router"
+    ]
   }
 }

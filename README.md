@@ -1,3 +1,4 @@
+
 # 📱 StormSafe Mobile
 
 Este repositório contém o aplicativo móvel **StormSafe Mobile**, parte da solução integrada **StormSafe**, criada para o desafio **Global Solution 2025 da FIAP** em parceria com a **Mottu**.
@@ -68,10 +69,23 @@ cd StormSafe_Mobile
 ```bash
 npm uninstall -g expo-cli
 npx expo install
-npx expo doctor --fix-dependencies
 ```
 
-### 3. Configurar baseURL da API
+### 3. Instalar Dependências Específicas Ausentes (obrigatórias)
+
+```bash
+npx expo install expo-router
+npx expo install expo-status-bar
+npx expo install expo-splash-screen
+npx expo install expo-font
+npx expo install expo-location
+npx expo install react-native-svg
+npx expo install react-native-maps
+npx expo install @react-native-async-storage/async-storage
+npm install axios
+```
+
+### 4. Configurar baseURL da API
 
 Abra `services/api.ts` e ajuste a `baseURL` para o endereço da API:
 
@@ -82,10 +96,10 @@ export const api = axios.create({
 });
 ```
 
-### 4. Executar o App
+### 5. Executar o App
 
 ```bash
-npx expo start -c
+npx expo start --tunnel
 ```
 
 Escaneie o QR Code com o **Expo Go** ou use as teclas `a` (Android) ou `i` (iOS).
@@ -135,19 +149,18 @@ StormSafe_Mobile/
 
 ## 🧩 Dependências Principais
 
-- `expo` (>= 48.0.0)
+- `expo` (>= 53.0.0)
 - `react` (>= 18.2.0)
-- `react-native` (>= 0.71.0)
+- `react-native` (>= 0.79.0)
 - `expo-router`
 - `axios` (>= 1.4.0)
 - `react-native-svg`
-- `react-native-safe-area-context`
-- `react-native-gesture-handler`
-- `react-native-reanimated`
-- `react-native-screens`
-- `@expo/vector-icons`
+- `react-native-maps`
 - `@react-native-async-storage/async-storage`
-- `expo-secure-store`
+- `expo-splash-screen`
+- `expo-status-bar`
+- `expo-font`
+- `expo-location`
 - `eslint`, `prettier`, `eslint-plugin-react-native`
 
 ---
@@ -162,7 +175,7 @@ StormSafe_Mobile/
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md}\""
+    "format": "prettier --write "**/*.{js,jsx,ts,tsx,css,md}""
   }
 }
 ```
@@ -176,5 +189,5 @@ StormSafe_Mobile/
 🔗 [GitHub](https://github.com/pedrovalentim22)
 
 **Miguel Barros Ramos**  
-📧 miguelbarrosramos46@gmail.com
+📧 miguelbarrosramos46@gmail.com  
 🔗 [LinkedIn](https://www.linkedin.com/in/miguel-barros-ramos-47458a326/)
